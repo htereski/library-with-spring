@@ -8,13 +8,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import com.example.library.dtos.BookResponseDTO;
 import com.example.library.models.entities.Book;
+import com.example.library.models.response.BookResponse;
 
 @Repository
 public interface BookRepository extends JpaRepository<Book, UUID> {
 
-    @Query("SELECT new com.example.library.dtos.BookResponseDTO(b.id, b.language, b.publisher, b.subject, b.title) FROM Book b WHERE b.user.id = ?1")
-    Page<BookResponseDTO> findBooksByUser(UUID userId, Pageable pageable);
-    
+    @Query("SELECT new com.example.library.models.response.BookResponse(b.id, b.title, a.name, b.language, b.publisher, b.subject) FROM Book b JOIN b.author a WHERE b.user.id = ?1")
+    Page<BookResponse> findBooksByUser(UUID userId, Pageable pageable);
+
 }

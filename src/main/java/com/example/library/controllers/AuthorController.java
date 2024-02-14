@@ -1,10 +1,8 @@
 package com.example.library.controllers;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.library.dtos.AuthorRecordDTO;
 import com.example.library.models.entities.Author;
-import com.example.library.repositories.AuthorRepository;
+import com.example.library.services.AuthorService;
 
 import jakarta.validation.Valid;
 
@@ -26,64 +24,49 @@ import jakarta.validation.Valid;
 public class AuthorController {
 
     @Autowired
-    private AuthorRepository authorRepository;
+    private AuthorService authorService;
 
-    @SuppressWarnings("null")
     @PostMapping("/authors")
     public ResponseEntity<Author> saveAuthor(@RequestBody @Valid AuthorRecordDTO authorRecordDTO) {
-
-        var author = new Author();
-
-        BeanUtils.copyProperties(authorRecordDTO, author);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(authorRepository.save(author));
+        return ResponseEntity.status(HttpStatus.CREATED).body(authorService.saveAuthor(authorRecordDTO));
     }
 
     @GetMapping("/authors")
     public ResponseEntity<List<Author>> getAllAuthors() {
-        return ResponseEntity.status(HttpStatus.OK).body(authorRepository.findAll());
+        return ResponseEntity.status(HttpStatus.OK).body(authorService.getAllAuthors());
     }
 
     @GetMapping("/authors/{id}")
     public ResponseEntity<Object> getOneAuthor(@PathVariable(value = "id") UUID id) {
 
-        @SuppressWarnings("null")
-        Optional<Author> author = authorRepository.findById(id);
+        Author author = authorService.getOneAuthor(id);
 
-        if (author.isEmpty()) {
+        if (author == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Author not found.");
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(author.get());
+        return ResponseEntity.status(HttpStatus.OK).body(author);
     }
 
-    @SuppressWarnings("null")
     @PutMapping("/authors/{id}")
     public ResponseEntity<Object> updateAuthor(@PathVariable(value = "id") UUID id,
             @RequestBody @Valid AuthorRecordDTO authorRecordDTO) {
 
-        Optional<Author> author = authorRepository.findById(id);
+        Author author = authorService.updateAuthor(authorRecordDTO, id);
 
-        if (author.isEmpty()) {
+        if (author == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Author not found.");
         }
 
-        var authorFinal = author.get();
-        BeanUtils.copyProperties(authorRecordDTO, authorFinal);
-        return ResponseEntity.status(HttpStatus.OK).body(authorRepository.save(authorFinal));
+        return ResponseEntity.status(HttpStatus.OK).body(author);
     }
 
-    @SuppressWarnings("null")
     @DeleteMapping("/authors/{id}")
     public ResponseEntity<Object> deleteAuthor(@PathVariable(value = "id") UUID id) {
 
-        Optional<Author> author = authorRepository.findById(id);
-
-        if (author.isEmpty()) {
+        if (authorService.deleteAuthor(id) == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Author not found.");
         }
-
-        authorRepository.delete(author.get());
 
         return ResponseEntity.status(HttpStatus.OK).body("Author deleted sucessfully.");
     }

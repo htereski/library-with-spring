@@ -1,4 +1,4 @@
-package com.example.library.dtos;
+package com.example.library.models.response;
 
 import java.util.UUID;
 
@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class UserResponseDTO {
+public class UserResponse {
 
     private UUID id;
 
